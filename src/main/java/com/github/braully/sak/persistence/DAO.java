@@ -26,7 +26,7 @@ public abstract class DAO implements ICrudEntity, Serializable {
     /* */
     protected abstract EntityManager getEntityManager();
 
-    protected abstract IUser getUsuarioOperacao();
+    protected abstract IUser getUserOperation();
 
     @Override
     public void saveEntityCascade(IEntity e, Collection<? extends IEntity>... relacoes) {
@@ -157,6 +157,33 @@ public abstract class DAO implements ICrudEntity, Serializable {
             ret = cont.intValue();
         }
         return ret;
+    }
+
+    @Override
+    public <T> List<T> loadCollectionSorted(Class<T> classe, String... args) {
+        List<T> lista = null;
+        if (classe != null) {
+            StringBuilder hql = new StringBuilder();
+            try {
+                hql.append("SELECT DISTINCT e FROM ").append(classe.getSimpleName()).append(" e ");
+                Query q = null;
+                if (args != null && args.length > 0) {
+                    hql.append(" ORDER BY ");
+
+                    for (int i = 0; i < args.length; i = i + 2) {
+                        hql.append(args[i]);
+                        if (i < args.length - 1) {
+                            hql.append(", ");
+                        }
+                    }
+                    q = getEntityManager().createQuery(hql.toString());
+                }
+                lista = (List<T>) q.getResultList();
+            } catch (Exception e) {
+                log.error("Erro ao busar", e);
+            }
+        }
+        return lista;
     }
 
     @Override
