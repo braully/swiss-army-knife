@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -167,9 +168,10 @@ public abstract class DAO implements ICrudEntity, Serializable {
             try {
                 hql.append("SELECT DISTINCT e FROM ").append(classe.getSimpleName()).append(" e ");
                 Query q = null;
-                if (args != null && args.length > 0 && (args.length % 2) == 0) {
+                if (args != null && args.length > 0) {
                     hql.append(" ORDER BY ");
-                    for (int i = 0; i < args.length; i++) {
+
+                    for (int i = 0; i < args.length; i = i + 2) {
                         hql.append(args[i]);
                         if (i < args.length - 1) {
                             hql.append(", ");
@@ -183,6 +185,22 @@ public abstract class DAO implements ICrudEntity, Serializable {
             }
         }
         return lista;
+    }
+
+//    @Override
+    public <T> List<T> loadCollectionWhere(Class<T> classe, Map parameters) {
+        Object[] args = null;
+        if (parameters != null) {
+            args = new Object[parameters.size() * 2];
+            int i = 0;
+            Set<Map.Entry> entrys = parameters.entrySet();
+            for (Map.Entry e : entrys) {
+                args[i++] = e.getKey();
+                args[i++] = e.getValue();
+            }
+//            parameters.forEach((k, v) -> args[i++] = k);//Only java 8
+        }
+        return loadCollectionWhere(classe, args);
     }
 
     @Override
