@@ -14,7 +14,9 @@ public interface IEntity extends Serializable {
 
     public Long getId();
 
-    public boolean isPersisted();
-
     public void setId(Long id);
+
+    default public boolean isPersisted() {
+        return getId() != null && getId() > 0;
+    }
 }
